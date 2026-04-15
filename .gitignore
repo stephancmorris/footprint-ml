@@ -214,3 +214,6 @@ __marimo__/
 models_cache/
 *.joblib
 
+# Extra
+Opensourceguide.md
+
