@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "footprint-ml"
+version = "0.1.0"
+description = "ML classifier for building footprint polygons → commercial property asset classes"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Stephan Morris", email = "stephancmorris@gmail.com" }]
+keywords = ["machine-learning", "buildings", "commercial-property", "classification", "gis"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "scikit-learn>=1.3",
+    "shapely>=2.0",
+    "pyproj>=3.6",
+    "joblib>=1.3",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+train = [
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "pandas>=2.0",       # needed for trainer tests
+    "matplotlib>=3.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/stephanmorris/footprint-ml"
+Repository = "https://github.com/stephanmorris/footprint-ml"
+Issues = "https://github.com/stephanmorris/footprint-ml/issues"
+Changelog = "https://github.com/stephanmorris/footprint-ml/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/footprint_ml"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "tests/",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+]
+
+[tool.ruff]
+src = ["src"]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.ruff.lint.isort]
+known-first-party = ["footprint_ml"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+mypy_path = "src"
+packages = ["footprint_ml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["src/footprint_ml"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

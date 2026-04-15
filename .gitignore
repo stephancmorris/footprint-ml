@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# footprint-ml: allow bundled model artifacts
+!src/footprint_ml/models/*.joblib
+!src/footprint_ml/models/*.json
+
+# footprint-ml: ignore downloaded/cached models outside the package
+models_cache/
+*.joblib
+
