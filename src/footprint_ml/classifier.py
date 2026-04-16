@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from footprint_ml.features import FEATURE_NAMES, extract_features
+from footprint_ml.features import extract_features
 from footprint_ml.model_registry import ModelArtifact, load
 from footprint_ml.types import Prediction
 
@@ -70,12 +70,12 @@ class FootprintClassifier:
 
     def predict(
         self,
-        geometry: "Polygon",
+        geometry: Polygon,
         *,
         zone_code: str | None = None,
         osm_tags: dict[str, Any] | None = None,
         anzsic_divisions: list[str] | None = None,
-        src_crs: "CRS | None" = None,
+        src_crs: CRS | None = None,
     ) -> Prediction:
         """Predict the asset class for a single building footprint.
 
@@ -114,7 +114,7 @@ class FootprintClassifier:
             order as the input DataFrame.
         """
         try:
-            import pandas as pd
+            import pandas  # noqa: F401
         except ImportError as exc:
             raise ImportError(
                 "predict_batch() requires pandas. Install with: pip install footprint-ml[train]"
@@ -125,7 +125,9 @@ class FootprintClassifier:
             geom = row["geometry"]
             zone = row.get("zone_code") if "zone_code" in dataframe.columns else None
             osm = row.get("osm_tags") if "osm_tags" in dataframe.columns else None
-            anzsic = row.get("anzsic_divisions") if "anzsic_divisions" in dataframe.columns else None
+            anzsic = (
+                row.get("anzsic_divisions") if "anzsic_divisions" in dataframe.columns else None
+            )
 
             # pandas may return NaN for missing optional fields — normalise to None
             zone = None if _is_missing(zone) else zone
@@ -177,7 +179,7 @@ class FootprintClassifier:
         top_idx = int(np.argmax(proba))
         asset_class = classes[top_idx]
         confidence = float(proba[top_idx])
-        probabilities = {cls: float(p) for cls, p in zip(classes, proba)}
+        probabilities = {cls: float(p) for cls, p in zip(classes, proba, strict=True)}
 
         return Prediction(
             asset_class=asset_class,
@@ -191,12 +193,14 @@ class FootprintClassifier:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _is_missing(val: Any) -> bool:
     """Return True if *val* is None or a pandas/numpy NA sentinel."""
     if val is None:
         return True
     try:
         import pandas as pd
+
         if pd.isna(val):
             return True
     except (ImportError, TypeError, ValueError):

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
 from shapely.geometry import Polygon
 
 from footprint_ml.features import (
@@ -19,18 +18,20 @@ from footprint_ml.features import (
     feature_vector,
 )
 
-
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
 
+
 def _rect(lon: float, lat: float, dlon: float, dlat: float) -> Polygon:
-    return Polygon([
-        (lon, lat),
-        (lon + dlon, lat),
-        (lon + dlon, lat + dlat),
-        (lon, lat + dlat),
-    ])
+    return Polygon(
+        [
+            (lon, lat),
+            (lon + dlon, lat),
+            (lon + dlon, lat + dlat),
+            (lon, lat + dlat),
+        ]
+    )
 
 
 # ~100m x 50m near Sydney
@@ -40,6 +41,7 @@ POLY = _rect(151.2093, -33.8688, 0.0009, 0.00045)
 # ---------------------------------------------------------------------------
 # FEATURE_NAMES contract
 # ---------------------------------------------------------------------------
+
 
 class TestFeatureNames:
     def test_count(self) -> None:
@@ -58,6 +60,7 @@ class TestFeatureNames:
 # ---------------------------------------------------------------------------
 # Internal encoders
 # ---------------------------------------------------------------------------
+
 
 class TestEncodeZone:
     def test_none_returns_nan(self) -> None:
@@ -167,12 +170,12 @@ class TestEncodeAnzsic:
 
     def test_single_known_division(self) -> None:
         primary, count = _encode_anzsic(["F"])
-        assert primary == 6.0   # Wholesale Trade
+        assert primary == 6.0  # Wholesale Trade
         assert count == 1.0
 
     def test_multiple_divisions(self) -> None:
         primary, count = _encode_anzsic(["F", "I"])
-        assert primary == 6.0   # first entry is primary
+        assert primary == 6.0  # first entry is primary
         assert count == 2.0
 
     def test_deduplication(self) -> None:
@@ -192,6 +195,7 @@ class TestEncodeAnzsic:
 # ---------------------------------------------------------------------------
 # extract_features — output shape and types
 # ---------------------------------------------------------------------------
+
 
 class TestExtractFeaturesShape:
     def test_returns_dict(self) -> None:
@@ -234,6 +238,7 @@ class TestExtractFeaturesShape:
 # extract_features — with optional signals
 # ---------------------------------------------------------------------------
 
+
 class TestExtractFeaturesWithSignals:
     def test_zone_code_encoded(self) -> None:
         result = extract_features(POLY, zone_code="IND")
@@ -272,6 +277,7 @@ class TestExtractFeaturesWithSignals:
 # ---------------------------------------------------------------------------
 # feature_vector
 # ---------------------------------------------------------------------------
+
 
 class TestFeatureVector:
     def test_returns_list(self) -> None:

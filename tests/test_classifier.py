@@ -2,30 +2,32 @@
 
 from __future__ import annotations
 
-import json
-import tempfile
-from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
 
-import joblib
 import numpy as np
-import pytest
 from shapely.geometry import Polygon
 
 from footprint_ml.classifier import FootprintClassifier, _is_missing
 from footprint_ml.features import FEATURE_NAMES
-from footprint_ml.model_registry import ModelArtifact, _META_FILENAME, _MODEL_FILENAME
+from footprint_ml.model_registry import ModelArtifact
 from footprint_ml.types import Prediction
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 ALL_CLASSES = [
-    "industrial", "warehouse", "retail", "office", "medical",
-    "hospitality", "education", "childcare", "mixed_use", "other_commercial",
+    "industrial",
+    "warehouse",
+    "retail",
+    "office",
+    "medical",
+    "hospitality",
+    "education",
+    "childcare",
+    "mixed_use",
+    "other_commercial",
 ]
 
 # Probabilities that sum to 1.0; warehouse is the top class
@@ -59,15 +61,20 @@ def _make_clf(top_class_idx: int = _WAREHOUSE_IDX) -> FootprintClassifier:
 
 
 def _rect(lon: float = 151.2093, lat: float = -33.8688) -> Polygon:
-    return Polygon([
-        (lon, lat), (lon + 0.001, lat),
-        (lon + 0.001, lat + 0.001), (lon, lat + 0.001),
-    ])
+    return Polygon(
+        [
+            (lon, lat),
+            (lon + 0.001, lat),
+            (lon + 0.001, lat + 0.001),
+            (lon, lat + 0.001),
+        ]
+    )
 
 
 # ---------------------------------------------------------------------------
 # Construction
 # ---------------------------------------------------------------------------
+
 
 class TestFootprintClassifierInit:
     def test_inject_artifact(self) -> None:
@@ -86,6 +93,7 @@ class TestFootprintClassifierInit:
 # ---------------------------------------------------------------------------
 # predict — return type and shape
 # ---------------------------------------------------------------------------
+
 
 class TestPredict:
     def test_returns_prediction(self) -> None:
@@ -168,9 +176,11 @@ class TestPredict:
 # predict_batch
 # ---------------------------------------------------------------------------
 
+
 class TestPredictBatch:
     def _make_df(self, n: int = 3, include_optional: bool = False) -> Any:
         import pandas as pd
+
         data: dict[str, Any] = {"geometry": [_rect() for _ in range(n)]}
         if include_optional:
             data["zone_code"] = ["IND"] * n
@@ -198,16 +208,20 @@ class TestPredictBatch:
 
     def test_handles_nan_optional_fields(self) -> None:
         import pandas as pd
+
         clf = _make_clf()
-        df = pd.DataFrame({
-            "geometry": [_rect(), _rect()],
-            "zone_code": [None, "IND"],
-        })
+        df = pd.DataFrame(
+            {
+                "geometry": [_rect(), _rect()],
+                "zone_code": [None, "IND"],
+            }
+        )
         preds = clf.predict_batch(df)
         assert len(preds) == 2
 
     def test_empty_dataframe_returns_empty_list(self) -> None:
         import pandas as pd
+
         clf = _make_clf()
         df = pd.DataFrame({"geometry": []})
         preds = clf.predict_batch(df)
@@ -217,6 +231,7 @@ class TestPredictBatch:
 # ---------------------------------------------------------------------------
 # _is_missing helper
 # ---------------------------------------------------------------------------
+
 
 class TestIsMissing:
     def test_none_is_missing(self) -> None:
@@ -233,5 +248,6 @@ class TestIsMissing:
 
     def test_pandas_nan_is_missing(self) -> None:
         import pandas as pd
+
         assert _is_missing(pd.NA)
         assert _is_missing(float("nan"))

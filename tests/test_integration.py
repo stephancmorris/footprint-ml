@@ -11,7 +11,6 @@ rather than mocking the pipeline.
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -24,35 +23,52 @@ from footprint_ml.model_registry import load_from_path
 from footprint_ml.trainer import FootprintTrainer
 from footprint_ml.types import AssetClass, Prediction
 
-
 # ---------------------------------------------------------------------------
 # Session-scoped real model artifact
 # ---------------------------------------------------------------------------
 
 _CLASSES = [
-    "warehouse", "industrial", "retail", "office", "medical",
-    "hospitality", "education", "childcare", "mixed_use", "other_commercial",
+    "warehouse",
+    "industrial",
+    "retail",
+    "office",
+    "medical",
+    "hospitality",
+    "education",
+    "childcare",
+    "mixed_use",
+    "other_commercial",
 ]
 _N_PER_CLASS = 6  # minimal; enough for 2-fold CV
 
 
 def _rect(lon: float, lat: float, size: float = 0.002) -> Polygon:
-    return Polygon([
-        (lon, lat), (lon + size, lat),
-        (lon + size, lat + size), (lon, lat + size),
-    ])
+    return Polygon(
+        [
+            (lon, lat),
+            (lon + size, lat),
+            (lon + size, lat + size),
+            (lon, lat + size),
+        ]
+    )
 
 
 def _build_training_df() -> pd.DataFrame:
     rows = []
     for i, cls in enumerate(_CLASSES):
         for j in range(_N_PER_CLASS):
-            rows.append({
-                "geometry": _rect(151.0 + i * 0.05 + j * 0.005, -33.0 + j * 0.005),
-                "asset_class": cls,
-                "zone_code": "IND" if cls in ("warehouse", "industrial") else "B2",
-                "osm_tags": {"building": cls if cls in ("warehouse", "industrial", "retail", "office") else "yes"},
-            })
+            rows.append(
+                {
+                    "geometry": _rect(151.0 + i * 0.05 + j * 0.005, -33.0 + j * 0.005),
+                    "asset_class": cls,
+                    "zone_code": "IND" if cls in ("warehouse", "industrial") else "B2",
+                    "osm_tags": {
+                        "building": cls
+                        if cls in ("warehouse", "industrial", "retail", "office")
+                        else "yes"
+                    },
+                }
+            )
     return pd.DataFrame(rows)
 
 
@@ -78,6 +94,7 @@ def clf(trained_artifact):
 # ---------------------------------------------------------------------------
 # Core predict contract
 # ---------------------------------------------------------------------------
+
 
 class TestPredictContract:
     def test_returns_prediction(self, clf: FootprintClassifier) -> None:
@@ -118,6 +135,7 @@ class TestPredictContract:
 # Enriched predict (optional signals)
 # ---------------------------------------------------------------------------
 
+
 class TestPredictWithSignals:
     def test_zone_code_accepted(self, clf: FootprintClassifier) -> None:
         pred = clf.predict(geometry=_rect(151.2, -33.8), zone_code="IND")
@@ -151,12 +169,15 @@ class TestPredictWithSignals:
 # Batch predict
 # ---------------------------------------------------------------------------
 
+
 class TestPredictBatch:
     def _df(self, n: int = 5) -> pd.DataFrame:
-        return pd.DataFrame({
-            "geometry": [_rect(151.0 + i * 0.01, -33.0) for i in range(n)],
-            "zone_code": ["IND"] * n,
-        })
+        return pd.DataFrame(
+            {
+                "geometry": [_rect(151.0 + i * 0.01, -33.0) for i in range(n)],
+                "zone_code": ["IND"] * n,
+            }
+        )
 
     def test_returns_list(self, clf: FootprintClassifier) -> None:
         preds = clf.predict_batch(self._df())
@@ -181,6 +202,7 @@ class TestPredictBatch:
 # ---------------------------------------------------------------------------
 # Pulse compat round-trip
 # ---------------------------------------------------------------------------
+
 
 class TestPulseCompat:
     def _signals(self) -> dict:
@@ -225,6 +247,7 @@ class TestPulseCompat:
 # Model registry round-trip: train → save → load → predict
 # ---------------------------------------------------------------------------
 
+
 class TestRegistryRoundTrip:
     def test_load_from_path_and_predict(self, trained_artifact) -> None:
         clf = FootprintClassifier(_artifact=trained_artifact)
@@ -260,14 +283,25 @@ class TestRegistryRoundTrip:
 # Geometry variety: different building shapes
 # ---------------------------------------------------------------------------
 
+
 class TestGeometryVariety:
     _SHAPES = {
-        "small_square": Polygon([(151.2, -33.8), (151.2005, -33.8), (151.2005, -33.8005), (151.2, -33.8005)]),
-        "large_rect": Polygon([(151.2, -33.8), (151.205, -33.8), (151.205, -33.801), (151.2, -33.801)]),
-        "l_shape": Polygon([
-            (151.2, -33.8), (151.204, -33.8), (151.204, -33.802),
-            (151.202, -33.802), (151.202, -33.803), (151.2, -33.803),
-        ]),
+        "small_square": Polygon(
+            [(151.2, -33.8), (151.2005, -33.8), (151.2005, -33.8005), (151.2, -33.8005)]
+        ),
+        "large_rect": Polygon(
+            [(151.2, -33.8), (151.205, -33.8), (151.205, -33.801), (151.2, -33.801)]
+        ),
+        "l_shape": Polygon(
+            [
+                (151.2, -33.8),
+                (151.204, -33.8),
+                (151.204, -33.802),
+                (151.202, -33.802),
+                (151.202, -33.803),
+                (151.2, -33.803),
+            ]
+        ),
     }
 
     @pytest.mark.parametrize("name,poly", _SHAPES.items())

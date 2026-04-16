@@ -76,7 +76,7 @@ def building_compactness(polygon: Polygon) -> float:
     perim = metric.length
     if perim == 0:
         return 0.0
-    return float(4 * math.pi * area / (perim ** 2))
+    return float(4 * math.pi * area / (perim**2))
 
 
 def _min_rotated_rect_dims(polygon: Polygon) -> tuple[float, float]:
@@ -171,7 +171,7 @@ def compute_metrics(
 
     area = float(metric.area)
     perim = float(metric.length)
-    compactness = (4 * math.pi * area / perim ** 2) if perim > 0 else 0.0
+    compactness = (4 * math.pi * area / perim**2) if perim > 0 else 0.0
 
     rect = metric.minimum_rotated_rectangle
     coords = list(rect.exterior.coords)

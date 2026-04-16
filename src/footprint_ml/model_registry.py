@@ -22,9 +22,7 @@ import joblib
 from footprint_ml.features import FEATURE_NAMES
 
 # GitHub Releases base URL — updated when new model versions are published
-_GITHUB_RELEASES_URL = (
-    "https://github.com/stephancmorris/footprint-ml/releases/download"
-)
+_GITHUB_RELEASES_URL = "https://github.com/stephancmorris/footprint-ml/releases/download"
 
 # Filename convention inside every artifact directory
 _MODEL_FILENAME = "model.joblib"
@@ -35,8 +33,16 @@ _FALLBACK_META: dict[str, Any] = {
     "version": "none",
     "feature_names": FEATURE_NAMES,
     "asset_classes": [
-        "industrial", "warehouse", "retail", "office", "medical",
-        "hospitality", "education", "childcare", "mixed_use", "other_commercial",
+        "industrial",
+        "warehouse",
+        "retail",
+        "office",
+        "medical",
+        "hospitality",
+        "education",
+        "childcare",
+        "mixed_use",
+        "other_commercial",
     ],
     "training_date": None,
 }
@@ -45,6 +51,7 @@ _FALLBACK_META: dict[str, Any] = {
 # ---------------------------------------------------------------------------
 # ModelArtifact
 # ---------------------------------------------------------------------------
+
 
 class ModelArtifact:
     """Container for a loaded model pipeline and its metadata."""
@@ -69,6 +76,7 @@ class ModelArtifact:
 # ---------------------------------------------------------------------------
 # Internal loaders
 # ---------------------------------------------------------------------------
+
 
 def _load_meta(directory: Path) -> dict[str, Any]:
     meta_path = directory / _META_FILENAME
@@ -95,6 +103,7 @@ def _load_from_directory(directory: Path) -> ModelArtifact:
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def load_bundled() -> ModelArtifact:
     """Load the model bundled inside the installed package wheel.
 
@@ -103,7 +112,7 @@ def load_bundled() -> ModelArtifact:
     """
     pkg_models = importlib.resources.files("footprint_ml") / "models"
     # importlib.resources gives us a Traversable; resolve to a real Path
-    with importlib.resources.as_file(pkg_models) as models_dir:  # type: ignore[arg-type]
+    with importlib.resources.as_file(pkg_models) as models_dir:
         return _load_from_directory(Path(models_dir))
 
 
@@ -136,10 +145,7 @@ def download(version: str, dest: str | Path | None = None) -> ModelArtifact:
     Returns:
         Loaded :class:`ModelArtifact`.
     """
-    if dest is None:
-        cache_root = Path.home() / ".cache" / "footprint_ml" / "models"
-    else:
-        cache_root = Path(dest)
+    cache_root = Path.home() / ".cache" / "footprint_ml" / "models" if dest is None else Path(dest)
 
     version_dir = cache_root / version
     version_dir.mkdir(parents=True, exist_ok=True)
@@ -152,9 +158,7 @@ def download(version: str, dest: str | Path | None = None) -> ModelArtifact:
         try:
             urllib.request.urlretrieve(url, target)  # noqa: S310
         except Exception as exc:
-            raise RuntimeError(
-                f"Failed to download {filename} from {url}: {exc}"
-            ) from exc
+            raise RuntimeError(f"Failed to download {filename} from {url}: {exc}") from exc
 
     return _load_from_directory(version_dir)
 

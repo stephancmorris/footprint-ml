@@ -4,7 +4,6 @@ import pytest
 
 from footprint_ml.types import AssetClass, Prediction
 
-
 EXPECTED_ASSET_CLASSES = {
     "industrial",
     "warehouse",
@@ -67,7 +66,7 @@ class TestPrediction:
 
     def test_is_frozen(self) -> None:
         pred = self._make_prediction()
-        with pytest.raises(Exception):
+        with pytest.raises(AttributeError):
             pred.asset_class = "retail"  # type: ignore[misc]
 
     def test_equality(self) -> None:

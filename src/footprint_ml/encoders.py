@@ -33,7 +33,7 @@ class ZoneEncoder:
         self._encoder: OrdinalEncoder | None = None
         self._categories: list[str] = []
 
-    def fit(self, zone_codes: list[str | None]) -> "ZoneEncoder":
+    def fit(self, zone_codes: list[str | None]) -> ZoneEncoder:
         """Fit the encoder on a list of zone code strings.
 
         ``None`` values are ignored during fitting (they map to NaN at
@@ -61,9 +61,7 @@ class ZoneEncoder:
             raise RuntimeError("ZoneEncoder must be fitted before transform().")
 
         none_mask = [z is None for z in zone_codes]
-        col: list[str] = [
-            z.upper().strip() if z is not None else "__MISSING__" for z in zone_codes
-        ]
+        col: list[str] = [z.upper().strip() if z is not None else "__MISSING__" for z in zone_codes]
         arr = np.array(col, dtype=object).reshape(-1, 1)
         result: NDArray[np.float64] = self._encoder.transform(arr).ravel().astype(np.float64)
         # Replace entries that were None with NaN (sklearn encodes them as unknown=-1)

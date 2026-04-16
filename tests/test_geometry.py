@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
 from pyproj import CRS
 from shapely.geometry import Polygon
 
@@ -21,19 +20,21 @@ from footprint_ml.geometry import (
     polygon_to_metric,
 )
 
-
 # ---------------------------------------------------------------------------
 # Test fixtures — WGS84 polygons in Sydney, Australia (UTM zone 56S)
 # ---------------------------------------------------------------------------
 
+
 def _rect_polygon(lon: float, lat: float, width_deg: float, height_deg: float) -> Polygon:
     """Axis-aligned rectangle in WGS84."""
-    return Polygon([
-        (lon, lat),
-        (lon + width_deg, lat),
-        (lon + width_deg, lat + height_deg),
-        (lon, lat + height_deg),
-    ])
+    return Polygon(
+        [
+            (lon, lat),
+            (lon + width_deg, lat),
+            (lon + width_deg, lat + height_deg),
+            (lon, lat + height_deg),
+        ]
+    )
 
 
 def _metric_square_polygon(lon: float, lat: float, side_m: float) -> Polygon:
@@ -71,19 +72,22 @@ SYDNEY_RECT = _rect_polygon(151.2093, -33.8688, 0.0009, 0.00045)
 SYDNEY_SQUARE = _metric_square_polygon(151.2093, -33.8688, 100.0)
 
 # An L-shaped polygon (8 exterior edges)
-L_SHAPE = Polygon([
-    (151.2093, -33.8688),
-    (151.2102, -33.8688),
-    (151.2102, -33.8693),
-    (151.2098, -33.8693),
-    (151.2098, -33.8695),
-    (151.2093, -33.8695),
-])
+L_SHAPE = Polygon(
+    [
+        (151.2093, -33.8688),
+        (151.2102, -33.8688),
+        (151.2102, -33.8693),
+        (151.2098, -33.8693),
+        (151.2098, -33.8695),
+        (151.2093, -33.8695),
+    ]
+)
 
 
 # ---------------------------------------------------------------------------
 # polygon_to_metric
 # ---------------------------------------------------------------------------
+
 
 class TestPolygonToMetric:
     def test_returns_polygon_and_crs(self) -> None:
@@ -108,6 +112,7 @@ class TestPolygonToMetric:
 # building_area_m2
 # ---------------------------------------------------------------------------
 
+
 class TestBuildingAreaM2:
     def test_reasonable_range(self) -> None:
         area = building_area_m2(SYDNEY_RECT)
@@ -123,6 +128,7 @@ class TestBuildingAreaM2:
 # ---------------------------------------------------------------------------
 # building_perimeter_m
 # ---------------------------------------------------------------------------
+
 
 class TestBuildingPerimeterM:
     def test_reasonable_range(self) -> None:
@@ -141,6 +147,7 @@ class TestBuildingPerimeterM:
 # ---------------------------------------------------------------------------
 # building_compactness
 # ---------------------------------------------------------------------------
+
 
 class TestBuildingCompactness:
     def test_range(self) -> None:
@@ -162,6 +169,7 @@ class TestBuildingCompactness:
 # aspect_ratio
 # ---------------------------------------------------------------------------
 
+
 class TestAspectRatio:
     def test_square_is_near_one(self) -> None:
         ar = aspect_ratio(SYDNEY_SQUARE)
@@ -181,18 +189,19 @@ class TestAspectRatio:
 # bbox_length_m / bbox_width_m
 # ---------------------------------------------------------------------------
 
+
 class TestBboxDims:
     def test_length_gte_width(self) -> None:
         assert bbox_length_m(SYDNEY_RECT) >= bbox_width_m(SYDNEY_RECT)
 
     def test_square_length_approx_equals_width(self) -> None:
-        l = bbox_length_m(SYDNEY_SQUARE)
-        w = bbox_width_m(SYDNEY_SQUARE)
-        assert abs(l - w) / l < 0.05
+        length = bbox_length_m(SYDNEY_SQUARE)
+        width = bbox_width_m(SYDNEY_SQUARE)
+        assert abs(length - width) / length < 0.05
 
     def test_rect_length_approx_100m(self) -> None:
-        l = bbox_length_m(SYDNEY_RECT)
-        assert 70 < l < 130
+        length = bbox_length_m(SYDNEY_RECT)
+        assert 70 < length < 130
 
     def test_rect_width_approx_50m(self) -> None:
         w = bbox_width_m(SYDNEY_RECT)
@@ -202,6 +211,7 @@ class TestBboxDims:
 # ---------------------------------------------------------------------------
 # edge_count
 # ---------------------------------------------------------------------------
+
 
 class TestEdgeCount:
     def test_rectangle_has_four_edges(self) -> None:
@@ -214,6 +224,7 @@ class TestEdgeCount:
 # ---------------------------------------------------------------------------
 # elongation
 # ---------------------------------------------------------------------------
+
 
 class TestElongation:
     def test_square_near_zero(self) -> None:
@@ -232,6 +243,7 @@ class TestElongation:
 # ---------------------------------------------------------------------------
 # compute_metrics — single-pass consistency
 # ---------------------------------------------------------------------------
+
 
 class TestComputeMetrics:
     def test_returns_all_keys(self) -> None:

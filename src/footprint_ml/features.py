@@ -8,7 +8,6 @@ HistGradientBoostingClassifier can handle them natively.
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
 from pyproj import CRS
@@ -90,15 +89,15 @@ _OSM_AMENITY_MAP: dict[str, float] = {
 
 # ANZSIC primary division letter → numeric code
 _ANZSIC_DIVISION_MAP: dict[str, float] = {
-    "A": 1.0,   # Agriculture, Forestry and Fishing
-    "B": 2.0,   # Mining
-    "C": 3.0,   # Manufacturing
-    "D": 4.0,   # Electricity, Gas, Water and Waste Services
-    "E": 5.0,   # Construction
-    "F": 6.0,   # Wholesale Trade
-    "G": 7.0,   # Retail Trade
-    "H": 8.0,   # Accommodation and Food Services
-    "I": 9.0,   # Transport, Postal and Warehousing
+    "A": 1.0,  # Agriculture, Forestry and Fishing
+    "B": 2.0,  # Mining
+    "C": 3.0,  # Manufacturing
+    "D": 4.0,  # Electricity, Gas, Water and Waste Services
+    "E": 5.0,  # Construction
+    "F": 6.0,  # Wholesale Trade
+    "G": 7.0,  # Retail Trade
+    "H": 8.0,  # Accommodation and Food Services
+    "I": 9.0,  # Transport, Postal and Warehousing
     "J": 10.0,  # Information Media and Telecommunications
     "K": 11.0,  # Financial and Insurance Services
     "L": 12.0,  # Rental, Hiring and Real Estate Services
@@ -115,6 +114,7 @@ _ANZSIC_DIVISION_MAP: dict[str, float] = {
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _encode_zone(zone_code: str | None) -> float:
     """Encode a zone code string to a float.
@@ -171,13 +171,14 @@ def _encode_anzsic(anzsic_divisions: list[str] | None) -> tuple[float, float]:
     if not anzsic_divisions:
         return _MISSING, 0.0
     primary = _ANZSIC_DIVISION_MAP.get(anzsic_divisions[0].upper(), 0.0)
-    count = float(len(set(d.upper() for d in anzsic_divisions)))
+    count = float(len({d.upper() for d in anzsic_divisions}))
     return primary, count
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def extract_features(
     polygon: Polygon,

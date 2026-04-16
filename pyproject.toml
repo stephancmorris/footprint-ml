@@ -83,6 +83,15 @@ warn_unused_configs = true
 mypy_path = "src"
 packages = ["footprint_ml"]
 
+[[tool.mypy.overrides]]
+module = [
+    "shapely.*",
+    "joblib.*",
+    "sklearn.*",
+    "pandas.*",
+]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"

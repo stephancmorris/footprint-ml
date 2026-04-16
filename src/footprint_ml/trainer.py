@@ -95,7 +95,7 @@ class FootprintTrainer:
         *,
         label_column: str = "asset_class",
         geometry_column: str = "geometry",
-    ) -> "FootprintTrainer":
+    ) -> FootprintTrainer:
         """Fit the model on *df*.
 
         Args:
@@ -110,7 +110,6 @@ class FootprintTrainer:
             ``self`` for chaining.
         """
         _require_pandas()
-        import pandas as pd
 
         df = df.copy()
         _validate_df(df, label_column, geometry_column)
@@ -196,9 +195,7 @@ class FootprintTrainer:
         # Use classes present in y, not self._label_classes (evaluate may run without fit)
         present_classes = sorted(np.unique(y).tolist())
         per_class_f1 = {
-            cls: float(report[cls]["f1-score"])
-            for cls in present_classes
-            if cls in report
+            cls: float(report[cls]["f1-score"]) for cls in present_classes if cls in report
         }
 
         return {
@@ -293,6 +290,7 @@ class FootprintTrainer:
 # Module-level helpers
 # ---------------------------------------------------------------------------
 
+
 def _require_pandas() -> None:
     try:
         import pandas  # noqa: F401
@@ -346,6 +344,7 @@ def _opt(row: Any, key: str) -> Any:
     val = row[key]
     try:
         import pandas as pd
+
         if pd.isna(val):
             return None
     except (TypeError, ValueError):

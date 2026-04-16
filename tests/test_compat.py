@@ -8,10 +8,10 @@ from shapely.geometry import Point, Polygon
 from footprint_ml._compat import _IGNORED_PULSE_KEYS, from_pulse_signals, to_pulse_result
 from footprint_ml.types import Prediction
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _poly() -> Polygon:
     return Polygon([(151.0, -33.0), (151.001, -33.0), (151.001, -33.001), (151.0, -33.001)])
@@ -45,6 +45,7 @@ def _pred() -> Prediction:
 # ---------------------------------------------------------------------------
 # from_pulse_signals
 # ---------------------------------------------------------------------------
+
 
 class TestFromPulseSignals:
     def test_minimal_signals(self) -> None:
@@ -84,8 +85,10 @@ class TestFromPulseSignals:
 
     def test_result_is_unpackable_to_predict(self) -> None:
         """Keys in the result must exactly match FootprintClassifier.predict() kwargs."""
-        from footprint_ml.classifier import FootprintClassifier
         import inspect
+
+        from footprint_ml.classifier import FootprintClassifier
+
         sig = inspect.signature(FootprintClassifier.predict)
         valid_kwargs = set(sig.parameters.keys()) - {"self"}
         result = from_pulse_signals(_full_signals())
@@ -95,6 +98,7 @@ class TestFromPulseSignals:
 # ---------------------------------------------------------------------------
 # to_pulse_result
 # ---------------------------------------------------------------------------
+
 
 class TestToPulseResult:
     def test_returns_dict(self) -> None:

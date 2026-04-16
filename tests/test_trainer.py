@@ -14,17 +14,21 @@ from shapely.geometry import Polygon
 from footprint_ml.model_registry import _META_FILENAME, _MODEL_FILENAME, load_from_path
 from footprint_ml.trainer import FootprintTrainer, _build_pipeline, _min_class_count
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 def _rect(lon: float, lat: float, size: float = 0.002) -> Polygon:
     """Small WGS84 rectangle — area well above the 200m² filter."""
-    return Polygon([
-        (lon, lat), (lon + size, lat),
-        (lon + size, lat + size), (lon, lat + size),
-    ])
+    return Polygon(
+        [
+            (lon, lat),
+            (lon + size, lat),
+            (lon + size, lat + size),
+            (lon, lat + size),
+        ]
+    )
 
 
 # 8 samples per class × 5 classes = 40 rows (enough for 2-fold CV)
@@ -66,6 +70,7 @@ def _fast_trainer(**kwargs) -> FootprintTrainer:
 # Construction
 # ---------------------------------------------------------------------------
 
+
 class TestFootprintTrainerInit:
     def test_not_fitted_initially(self) -> None:
         trainer = FootprintTrainer()
@@ -87,6 +92,7 @@ class TestFootprintTrainerInit:
 # ---------------------------------------------------------------------------
 # fit()
 # ---------------------------------------------------------------------------
+
 
 class TestFit:
     def test_returns_self(self) -> None:
@@ -142,6 +148,7 @@ class TestFit:
 # evaluate()
 # ---------------------------------------------------------------------------
 
+
 class TestEvaluate:
     def test_returns_expected_keys(self) -> None:
         trainer = _fast_trainer()
@@ -177,6 +184,7 @@ class TestEvaluate:
 # ---------------------------------------------------------------------------
 # save()
 # ---------------------------------------------------------------------------
+
 
 class TestSave:
     def test_save_before_fit_raises(self) -> None:
@@ -237,6 +245,7 @@ class TestSave:
 # Round-trip: save → load_from_path → classify
 # ---------------------------------------------------------------------------
 
+
 class TestRoundTrip:
     def test_saved_model_loadable(self) -> None:
         trainer = _fast_trainer(version="rt_v1")
@@ -288,6 +297,7 @@ class TestRoundTrip:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 class TestHelpers:
     def test_min_class_count(self) -> None:
         y = np.array(["a", "a", "a", "b", "b", "c"])
@@ -295,6 +305,7 @@ class TestHelpers:
 
     def test_build_pipeline_returns_pipeline(self) -> None:
         from sklearn.pipeline import Pipeline
+
         p = _build_pipeline(
             {"max_iter": 10, "random_state": 0},
             calibration_method="isotonic",

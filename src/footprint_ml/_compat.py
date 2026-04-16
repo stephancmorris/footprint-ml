@@ -26,7 +26,6 @@ from typing import Any
 
 from shapely.geometry import Polygon
 
-
 # Keys that Pulse includes but footprint-ml has no use for
 _IGNORED_PULSE_KEYS: frozenset[str] = frozenset(
     ["confidence_source", "gnaf_pid", "property_id", "lot_plan", "address_id"]

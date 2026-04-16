@@ -16,18 +16,18 @@ from sklearn.pipeline import Pipeline
 
 from footprint_ml.features import FEATURE_NAMES
 from footprint_ml.model_registry import (
-    ModelArtifact,
     _FALLBACK_META,
     _META_FILENAME,
     _MODEL_FILENAME,
+    ModelArtifact,
     load,
     load_from_path,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _fake_pipeline(classes: list[str] | None = None) -> Pipeline:
     """Minimal real sklearn pipeline that is picklable by joblib."""
@@ -57,6 +57,7 @@ def _write_artifact(directory: Path, meta: dict[str, Any] | None = None) -> None
 # ---------------------------------------------------------------------------
 # ModelArtifact
 # ---------------------------------------------------------------------------
+
 
 class TestModelArtifact:
     def test_version(self) -> None:
@@ -88,6 +89,7 @@ class TestModelArtifact:
 # load_from_path — directory
 # ---------------------------------------------------------------------------
 
+
 class TestLoadFromPathDirectory:
     def test_loads_model_and_meta(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -98,9 +100,8 @@ class TestLoadFromPathDirectory:
             assert art.feature_names == FEATURE_NAMES
 
     def test_missing_model_raises(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            with pytest.raises(FileNotFoundError):
-                load_from_path(Path(tmp))
+        with tempfile.TemporaryDirectory() as tmp, pytest.raises(FileNotFoundError):
+            load_from_path(Path(tmp))
 
     def test_missing_meta_uses_fallback(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -120,6 +121,7 @@ class TestLoadFromPathDirectory:
 # ---------------------------------------------------------------------------
 # load_from_path — direct .joblib file
 # ---------------------------------------------------------------------------
+
 
 class TestLoadFromPathJoblib:
     def test_loads_joblib_directly(self) -> None:
@@ -147,6 +149,7 @@ class TestLoadFromPathJoblib:
 # load() unified entry point
 # ---------------------------------------------------------------------------
 
+
 class TestLoad:
     def test_path_takes_priority(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -157,14 +160,18 @@ class TestLoad:
 
     def test_no_args_calls_load_bundled(self) -> None:
         with patch("footprint_ml.model_registry.load_bundled") as mock_lb:
-            mock_lb.return_value = ModelArtifact(pipeline=_fake_pipeline(), meta={"version": "bundled"})
+            mock_lb.return_value = ModelArtifact(
+                pipeline=_fake_pipeline(), meta={"version": "bundled"}
+            )
             art = load()
             mock_lb.assert_called_once()
             assert art.version == "bundled"
 
     def test_version_calls_download(self) -> None:
         with patch("footprint_ml.model_registry.download") as mock_dl:
-            mock_dl.return_value = ModelArtifact(pipeline=_fake_pipeline(), meta={"version": "dl_v1"})
+            mock_dl.return_value = ModelArtifact(
+                pipeline=_fake_pipeline(), meta={"version": "dl_v1"}
+            )
             art = load(version="au_commercial_v1")
             mock_dl.assert_called_once_with("au_commercial_v1")
             assert art.version == "dl_v1"
